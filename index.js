@@ -11,8 +11,8 @@ server.use(cors());
 server.post('/getUsersData', (req, res) => {
     {
         let users;
-        users = req.body;
-        userData.getAllUserDetails(users);
+        users = req.body.gitHubUsers;
+        userData.getAllUsersDetails(users);
     }
     res.send({yo:"yo"});
 });

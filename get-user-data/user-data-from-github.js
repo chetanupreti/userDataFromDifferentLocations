@@ -1,17 +1,30 @@
 const axios = require('axios');
 
-function getUserDetailsFormGithub(users) {
-    var allUserDetail = [];
-    users.map(async (user) => {
-        {
-            let details;
-            details = await axios.get(`https://api.github.com/users/${user}`);
-            allUserDetail.push(details.data);
-        }
-        return allUserDetail;
+async function getUsersDetailsFormGithub(users) {
+    var allUserDetails = [];
+    let returnData = new Promise((resolve, reject) => {
+        var usersData = users.map((user) => getUserData(user))
+        Promise.all(usersData)
+            .then(res => {
+                res.map((user) => {
+                    allUserDetails.push(user.data);
+                })
+                resolve(allUserDetails);
+
+            })
+            .catch(error => {
+                reject(error);
+            })
     })
+    return returnData;
+
 }
 
+async function getUserData(user) {
+    return await axios.get(`https://api.github.com/users/${user.userName}`);
+}
+
+
 module.exports = {
-    getUserDetailsFormGithub
+    getUsersDetailsFormGithub
 }
