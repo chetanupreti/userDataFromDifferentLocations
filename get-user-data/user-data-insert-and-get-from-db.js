@@ -7,64 +7,98 @@ const connection = mysql.createConnection({
     database: 'bdklhsumpiieavket1xo'
 });
 
-let cacheData = [{
-        login: 'chetanupreti',
-        avatar_url: 'https://avatars2.githubusercontent.com/u/29591435?v=4',
-        bio: null,
-        public_repos: 19,
-        public_gists: 0,
-        followers: 0,
-        following: 0,
-        id: 29591435,
-    },
-    {
-        login: 'amitsingh',
-        node_id: 'MDQ6VXNlcjQ5NTE5NQ==',
-        avatar_url: 'https://avatars2.githubusercontent.com/u/495195?v=4',
-        bio: null,
-        public_repos: 0,
-        public_gists: 0,
-        followers: 0,
-        following: 0,
-        id: 495195,
-    }
-]
-
 connection.connect((err) => {
     if (err) {
-        console.log('error in connection establishment');
+        console.log('error in connection establishment', err);
     } else {
         console.log('connection establish');
     }
 });
 
+
+/*      
+         -------------------------------------------------------------------------------------------------------------------------------------------------
+         all function definations
+*/
+
+
+/**
+ * 
+ * @param {*} dataFromGit: users data from github api
+ * @description: function insert data into databse
+ */
+
 async function insertUsersDataToDb(dataFromGit) {
-    var statement = `INSERT INTO fe_user_information (avatar_url,name,bio,public_repos,public_gists,followers,id)  VALUES ?`;
-    var todos = [];
-    dataFromGit.map( (user) => {
-        let makeInsertData = [];
-        makeInsertData.push(user.avatar_url);
-        makeInsertData.push(user.login);
-        makeInsertData.push(user.bio);
-        makeInsertData.push(user.public_repos);
-        makeInsertData.push(user.public_gists);
-        makeInsertData.push(user.followers);
-        makeInsertData.push(user.id);
-        todos.push(makeInsertData);
+    var returnData = new Promise((resolve, reject) => {
+        var statement = `INSERT INTO fe_user_information (avatar_url,name,bio,public_repos,public_gists,followers,id)  VALUES ?`;
+        var todos = [];
+        dataFromGit.map((user) => {
+            let makeInsertData = [];
+            makeInsertData.push(user.avatar_url);
+            makeInsertData.push(user.login);
+            makeInsertData.push(user.bio || ' ');
+            makeInsertData.push(user.public_repos);
+            makeInsertData.push(user.public_gists);
+            makeInsertData.push(user.followers);
+            makeInsertData.push(user.id);
+            todos.push(makeInsertData);
+        })
+        connection.query(statement, [todos], (err, results) => {
+            if (err) {
+                reject(err);
+            }
+            if (results) {
+                resolve(results);
+            }
+        });
     })
-    connection.query(statement, [todos], (err, results) => {
-        if (err) {
-            return console.error(err.message);
-        }
-        if (results) {
-            console.log('Row inserted:' + results.affectedRows);
-        }
-    });
+    return returnData;
 }
 
-insertUsersDataToDb(cacheData)
+/**
+ * 
+ * @param {*} users: users data that will retrieve into the database
+ * @description: this function is used to retrieve users from database using In selector so data comes
+ *               in one query.
+ */
 
 async function getUsersDataFromDb(users) {
+    var returnData = new Promise((resolve, reject) => {
+        var todos = [];
+        users.map((user) => {
+            todos.push(user.login);
+        }) 
+        {
+            let inQueryString;
+            inQueryString = makeStringForInSelector(todos);
+            var statement = "select avatar_url,name,bio,public_repos,public_gists,followers,id from fe_user_information where name IN" + `(${inQueryString})`;
+        }
+        connection.query(statement, (err, results) => {
+            if (err) {
+                reject(err);
+            }
+            if (results) {
+                console.log(results);
+                resolve(results);
+            }
+        });
+    })
+    return returnData;
+}
+
+/***
+ * @param {*} data: getting users data in this formate["chetan","amit"]
+ * @description this is used for making In selector data formate like ("chetan","amit")
+ */
+
+function makeStringForInSelector(data) {
+    var returnStringForIn = '';
+    for (let i = 0; i < data.length - 1; i++) {
+        returnStringForIn = returnStringForIn + `"${data[i]}",`
+    }
+    returnStringForIn += `"${data[data.length-1]}"`;
+    return returnStringForIn;
+
 }
 
 module.exports = {
