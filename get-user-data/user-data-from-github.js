@@ -12,18 +12,24 @@ async function getUsersDetailsFormGithub(users) {
         var usersData = users.map((user) => getUserData(user))
         Promise.all(usersData)
             .then(res => {
-                res.map((user) => {
-                    allUserDetails.push(user.data);
+                res.map( (user) => {
+                    let makeInsertData = {};
+                     makeInsertData['avatar_url'] = (user.data.avatar_url);
+                     makeInsertData['name'] = (user.data.login);
+                     makeInsertData['bio'] = (user.data.bio || ' ');
+                     makeInsertData['public_repos'] = (user.data.public_repos);
+                     makeInsertData['public_gists'] = (user.data.public_gists);
+                     makeInsertData['followers'] = (user.data.followers);
+                     makeInsertData['id'] = (user.data.id);
+                    allUserDetails.push(makeInsertData);
                 })
                 resolve(allUserDetails);
-
             })
             .catch(error => {
                 reject(error);
             })
     })
     return returnData;
-
 }
 
 /**
@@ -33,7 +39,7 @@ async function getUsersDetailsFormGithub(users) {
  */
 
 async function getUserData(user) {
-    return await axios.get(`https://api.github.com/users/${user.userName}`);
+    return await axios.get(`https://api.github.com/users/${user.name}`);
 }
 
 

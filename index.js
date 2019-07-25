@@ -7,20 +7,43 @@ server.use(bodyParser.json())
 const port = process.env.PORT || 5000;
 server.use(cors());
 
+var returnUserData;
 
-server.post('/getUsersData', (req, res) => {
+server.post('/getUsersData', fetchUsersData);
+
+/**
+ * @param {*} request  | request object inserted by node when request is coming from browser. All
+ *                       request details in this object.
+ * @param {*} response | response object inserted by node. many method like end, send in response object.
+ * @description        | this function send response (all user details ) to the front.
+*/
+
+async function fetchUsersData(request, response) {
     {
         let users;
-        users = req.body.gitHubUsers;
-        userData.getAllUsersDetails(users);
+        users = request.body.gitHubUserNames;
+        await getUsersDetails(users);
     }
-    res.send({yo:"yo"});
-});
+    response.send({usersDetails: returnUserData})
+};
 
-server.get('/', (req,res) => {
-    res.send({hye:'hye'})
-})
 
-server.listen(port, function () {
+/**
+ * 
+ * @param {*} users | all users name from client side.
+ * @description | this call user-data's getAllUsersDetails function that send all user details from
+ *                github or db or cache.
+ */
+
+async function getUsersDetails( users ) {
+    return new Promise(async (resolve, reject) => {
+        let dataFromAllWay = await userData.getAllUsersDetails(users);
+        console.log('data',dataFromAllWay);
+        returnUserData = dataFromAllWay;
+        resolve('resolved');
+    })
+}
+
+server.listen(port, () => {
     console.log(`server is started in ${port}`)
 });

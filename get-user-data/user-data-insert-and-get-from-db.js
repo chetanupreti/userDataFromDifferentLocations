@@ -29,13 +29,14 @@ connection.connect((err) => {
  */
 
 async function insertUsersDataToDb(dataFromGit) {
+    console.log(dataFromGit);
     var returnData = new Promise((resolve, reject) => {
         var statement = `INSERT INTO fe_user_information (avatar_url,name,bio,public_repos,public_gists,followers,id)  VALUES ?`;
         var todos = [];
         dataFromGit.map((user) => {
             let makeInsertData = [];
             makeInsertData.push(user.avatar_url);
-            makeInsertData.push(user.login);
+            makeInsertData.push(user.name);
             makeInsertData.push(user.bio || ' ');
             makeInsertData.push(user.public_repos);
             makeInsertData.push(user.public_gists);
@@ -48,7 +49,7 @@ async function insertUsersDataToDb(dataFromGit) {
                 reject(err);
             }
             if (results) {
-                resolve(results);
+                resolve(results.affectedRows);
             }
         });
     })
@@ -66,8 +67,8 @@ async function getUsersDataFromDb(users) {
     var returnData = new Promise((resolve, reject) => {
         var todos = [];
         users.map((user) => {
-            todos.push(user.login);
-        }) 
+            todos.push(user.name);
+        })
         {
             let inQueryString;
             inQueryString = makeStringForInSelector(todos);
@@ -78,7 +79,6 @@ async function getUsersDataFromDb(users) {
                 reject(err);
             }
             if (results) {
-                console.log(results);
                 resolve(results);
             }
         });
@@ -87,7 +87,7 @@ async function getUsersDataFromDb(users) {
 }
 
 /***
- * @param {*} data: getting users data in this formate["chetan","amit"]
+ * @param {*} data: getting users data in this formate ["chetan","amit"]
  * @description this is used for making In selector data formate like ("chetan","amit")
  */
 
@@ -97,6 +97,7 @@ function makeStringForInSelector(data) {
         returnStringForIn = returnStringForIn + `"${data[i]}",`
     }
     returnStringForIn += `"${data[data.length-1]}"`;
+    console.log(typeof returnStringForIn);
     return returnStringForIn;
 
 }
