@@ -5,6 +5,7 @@ var cacheMemory = require('./user-data-from-cache.js');
 var returnAllUserData = [];
 
 async function getAllUsersDetails(users) {
+    users = [...new Set(users)];
     let allUsersDetails = new Promise(async (resolve, reject) => {
         {
             let dataFromCache;

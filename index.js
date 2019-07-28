@@ -22,6 +22,7 @@ async function fetchUsersData(request, response) {
     {
         let users;
         users = request.body.gitHubUserNames;
+        console.log('users',users);
         await getUsersDetails(users);
     }
     response.send({usersDetails: returnUserData})
