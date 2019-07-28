@@ -3,9 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 var userData = require('./get-user-data/user-data')
 const server = express();
-server.use(bodyParser.json())
-const port = process.env.PORT || 5000;
-server.use(cors());
+
 
 var returnUserData;
 
@@ -50,6 +48,10 @@ async function getUsersDetails( users ) {
     })
 }
 
+
+server.use(bodyParser.json())
+const port = process.env.PORT || 5000;
+server.use(cors());
 server.listen(port, () => {
     console.log(`server is started in ${port}`)
 });
