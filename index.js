@@ -13,6 +13,7 @@ server.post('/getUsersData', fetchUsersData);
 
 server.get('', (request,response)=>{
     console.log('hye');
+    response.send('hye');
 })
 
 /**
