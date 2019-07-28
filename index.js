@@ -11,6 +11,10 @@ var returnUserData;
 
 server.post('/getUsersData', fetchUsersData);
 
+server.get('', (request,response)=>{
+    console.log('hye');
+})
+
 /**
  * @param {*} request  | request object inserted by node when request is coming from browser. All
  *                       request details in this object.
