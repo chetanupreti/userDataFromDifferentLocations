@@ -3,12 +3,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 var userData = require('./get-user-data/user-data')
 const server = express();
-
-server.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+server.use(bodyParser.json());
+server.use(cors());
 
 var returnUserData;
 
@@ -29,8 +25,9 @@ server.get('', (request,response)=>{
 async function fetchUsersData(request, response) {
     {
         let users;
+        console.log(request.body);
         users = request.body.gitHubUserNames;
-        console.log('users',users);
+        console.log('users========>>>>>>>>>',users);
         await getUsersDetails(users);
     }
     response.send({usersDetails: returnUserData})
@@ -54,9 +51,7 @@ async function getUsersDetails( users ) {
 }
 
 
-server.use(bodyParser.json())
 const port = process.env.PORT || 5000;
-server.use(cors());
 server.listen(port, () => {
     console.log(`server is started in ${port}`)
 });
